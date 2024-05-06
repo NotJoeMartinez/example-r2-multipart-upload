@@ -1,4 +1,5 @@
 # Example worker + R2 multipart upload 
+**work in progress**
 
 This is a simple vanilla js example of a cloudflare worker 
 that uses the aws-sdk to upload multipart files to upload 
