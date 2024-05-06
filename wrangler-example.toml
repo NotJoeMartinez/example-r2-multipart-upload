@@ -1,0 +1,18 @@
+name = "your-project-nname"
+main = "src/index.js"
+compatibility_date = "2024-05-05"
+account_id = "your-account-id"
+workers_dev = true
+
+[[r2_buckets]]
+binding = "YOUR-BUCKET-NAME"
+bucket_name = "your-bucket-name"
+
+[vars]
+CF_R2_ACCOUNT_ID="your-r2-account-id"
+CF_TOKEN_VALUE="your-cloudflare-token"
+CF_R2_ACCESS_KEY_ID="your-r2-access-key-id"
+CF_R2_SECRET_ACCESS_KEY="your-r2-secret-access-key"
+CF_ENDPOINT="your-cloudflare-endpoint-url"
+
+
