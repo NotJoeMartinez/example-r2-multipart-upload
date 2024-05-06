@@ -170,3 +170,11 @@ dist
 
 .dev.vars
 .wrangler/
+
+
+.ignore
+.env
+.wrangler
+.venv
+.vscode
+wrangler.toml
