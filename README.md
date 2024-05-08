@@ -13,5 +13,9 @@ files larger than 5GB to R2.
 
 ### insallation
 ```
+npm create cloudflare@latest example-r2-multipart-upload
+```
+```
+cd example-r2-multipart-upload
 npm install @aws-sdk/client-s3
 ```
