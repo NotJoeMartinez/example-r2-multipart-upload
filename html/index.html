@@ -2,77 +2,82 @@
 <html>
 
     <body>
+        <div>
+            <input type="file" id="fileUpload" />
+            <button id="uploadButton" onclick="uploadFile()">Upload</button>
+        </div>
         <script>
-            const CHUNK_SIZE = 25 * 1024 * 1024; // 25MB
-            const BASE_CF_URL = 'http://localhost:8787';
-            const file = document.getElementById('fileUpload').files[0];
-            const totalParts = Math.ceil(file.size / CHUNK_SIZE);
-            const bucketName = 'multiPartUploadExample';
-            const key = `${file.name}`;
 
-            const getMutltiPartUploadUrl = new URL(`${BASE_CF_URL}/getMultiPartUpload`);
-            getMutltiPartUploadUrl.searchParams.append('bucket', bucketName);
-            getMutltiPartUploadUrl.searchParams.append('key', key);
+            async function uploadFile() {
 
-            const uploadIdResponse = await fetch(getMutltiPartUploadUrl, {
-                method: 'GET'
-            });
+                const CHUNK_SIZE = 5 * 1024 * 1024; // 25MB
+                const BASE_CF_URL = 'http://localhost:8787';
 
-            const multiPartUploadJson = await uploadIdResponse.json();
-            console.log('multiPartUploadJson', multiPartUploadJson);
+                const file = document.getElementById('fileUpload').files[0];
+                const totalParts = Math.ceil(file.size / CHUNK_SIZE);
+                const bucketName = 'example';
+                const key = `${file.name}`;
 
-            const uploadId = multiPartUploadJson.response.UploadId;
-            console.log('uploadId', uploadId);
+                const getMutltiPartUploadUrl = new URL(`${BASE_CF_URL}/getMultiPartUpload`);
+                getMutltiPartUploadUrl.searchParams.append('bucket', bucketName);
+                getMutltiPartUploadUrl.searchParams.append('key', key);
 
-            const partsData = [];
-
-            const uploadPartUrl = new URL(`${BASE_CF_URL}/uploadPart`);
-            uploadPartUrl.searchParams.append('bucket', bucketName);
-            uploadPartUrl.searchParams.append('key', key);
-            uploadPartUrl.searchParams.append('uploadId', uploadId);
-
-            for (let i = 0; i < totalParts; i++) {
-                const start = CHUNK_SIZE * i;
-                const end = Math.min(file.size, start + CHUNK_SIZE);
-                const blob = file.slice(start, end);
-                const partNumber = i + 1;
-
-                const formData = new FormData();
-                formData.append('file', blob);
-
-                uploadPartUrl.searchParams.set('partNumber', partNumber);
-
-
-                const uploadPartResponse = await fetch(uploadPartUrl, {
-                    method: 'POST',
-                    body: formData
+                const uploadIdResponse = await fetch(getMutltiPartUploadUrl, {
+                    method: 'GET'
                 });
 
-                
-                const uploadPartJson = await uploadPartResponse.json();
+                const multiPartUploadJson = await uploadIdResponse.json();
+                console.log('multiPartUploadJson', multiPartUploadJson);
 
-                console.log('uploadPartJson', uploadPartJson);
+                const uploadId = multiPartUploadJson.response.UploadId;
+                console.log('uploadId', uploadId);
 
-                const eTag = uploadPartJson.response.ETag;
+                const partsData = [];
 
-                partsData.push({ PartNumber: partNumber, ETag: eTag });
+                const uploadPartUrl = new URL(`${BASE_CF_URL}/uploadPart`);
+                uploadPartUrl.searchParams.append('bucket', bucketName);
+                uploadPartUrl.searchParams.append('key', key);
+                uploadPartUrl.searchParams.append('uploadId', uploadId);
 
-                console.log(`${i}/${totalParts}: Uploaded part ${partNumber} with eTag ${eTag} `);
+                for (let i = 0; i < totalParts; i++) {
+                    const start = CHUNK_SIZE * i;
+                    const end = Math.min(file.size, start + CHUNK_SIZE);
+                    const blob = file.slice(start, end);
+                    const partNumber = i + 1;
 
+                    const formData = new FormData();
+                    formData.append('file', blob);
+                    uploadPartUrl.searchParams.set('partNumber', partNumber);
+
+                    const uploadPartResponse = await fetch(uploadPartUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    
+                    const uploadPartJson = await uploadPartResponse.json();
+                    const eTag = uploadPartJson.response.ETag;
+
+                    partsData.push({ PartNumber: partNumber, ETag: eTag });
+
+                    console.log(`${i}/${totalParts}: Uploaded part ${partNumber} with eTag ${eTag} `);
+
+                }
+
+                const completeUploadUrl = new URL(`${BASE_CF_URL}/completeMultipartUpload`);
+
+                completeUploadUrl.searchParams.append('bucket', bucketName);
+                completeUploadUrl.searchParams.append('key', key);
+                completeUploadUrl.searchParams.append('uploadId', uploadId);
+
+                console.log('partsData', partsData);
+                const completeUploadResponse = await fetch(completeUploadUrl, {
+                    method: 'POST',
+                    body: JSON.stringify({ parts: partsData })
+                });
+
+                console.log(await completeUploadResponse.json());
             }
-
-            const completeUploadUrl = new URL(`${BASE_CF_URL}/completeMultipartUpload`);
-            completeUploadUrl.searchParams.append('bucket', bucketName);
-            completeUploadUrl.searchParams.append('key', key);
-            completeUploadUrl.searchParams.append('uploadId', uploadId);
-
-            console.log('partsData', partsData);
-            const completeUploadResponse = await fetch(completeUploadUrl, {
-                method: 'POST',
-                body: JSON.stringify({ parts: partsData })
-            });
-
-            console.log(await completeUploadResponse.json());
         </script>
     </body>
 </html>

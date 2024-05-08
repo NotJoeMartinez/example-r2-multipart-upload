@@ -12,6 +12,7 @@ export default {
     const url = new URL(request.url);
     const base = url.pathname.split('/').slice(1)[0];
 
+    console .log(base);
     console.log('base', base);
 
     const S3 = new S3Client({
@@ -24,12 +25,20 @@ export default {
     });
 
 
-    if (request.method === 'get') {
+    if (request.method === 'GET') {
+      if (base === 'getMultiPartUpload') {
+        console.log('from getMultiPartUpload');
+        return getMultiPartUpload(S3, request);
+      }
+    } 
 
-    } else if (request.method === 'post') {
-
-    } else {
-
+    if (request.method === 'POST') {
+      if (base === 'uploadPart') {
+        return uploadPart(S3, request);
+      } 
+      if (base === 'completeMultipartUpload') {
+        return completeMultipartUpload(S3, request);  
+      }
     }
 
 	},
@@ -188,24 +197,9 @@ async function getMultiPartUpload(S3, request) {
 
 
 function getHeaders() {
-  let corsHeaders = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS, PUT",
-      "Access-Control-Allow-Headers": "*",
-  }
-  return corsHeaders;
-}
-
-
-function get404Response() {
-  let headers = getHeaders();
-  headers['Content-Type'] = 'application/json';
-  headers['status'] = 404;
-  return new Response(JSON.stringify(
-      { 
-          msg: '404 page not found!' 
-      }), 
-      { 
-          headers: headers 
-      });
+    return {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, OPTIONS, PUT",
+        "Access-Control-Allow-Headers": "*",
+    }
 }
