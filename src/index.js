@@ -7,22 +7,22 @@ import {
 
 
 export default {
-	async fetch(request, env, ctx) {
+  async fetch(request, env, ctx) {
 
 
-    const headers =  {
+    const headers = {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, OPTIONS, PUT",
       "Access-Control-Allow-Headers": "*"
     }
 
     const S3 = new S3Client({
-        region: "auto",
-        endpoint: env.CF_ENDPOINT,
-        credentials: {
+      region: "auto",
+      endpoint: env.CF_ENDPOINT,
+      credentials: {
         accessKeyId: env.R2_ACCESS_KEY_ID,
         secretAccessKey: env.R2_SECRET_ACCESS_KEY,
-        },
+      },
     });
 
 
@@ -33,17 +33,18 @@ export default {
       if (base === 'getMultiPartUpload') {
         return getMultiPartUpload(S3, request, headers);
       }
-    } 
+    }
 
     if (request.method === 'POST') {
       if (base === 'uploadPart') {
         return uploadPart(S3, request, headers);
-      } 
+      }
       if (base === 'completeMultipartUpload') {
-        return completeMultipartUpload(S3, request, headers);  
+        return completeMultipartUpload(S3, request, headers);
       }
     }
-	},
+  }
+
 };
 
 
@@ -58,14 +59,14 @@ async function completeMultipartUpload(S3, request, headers) {
     const uploadId = params.get('uploadId');
 
     const partsData = await request.json();
-    const parts = partsData.parts;  
+    const parts = partsData.parts;
 
     const input = {
       "Bucket": bucket,
       "Key": key,
       "UploadId": uploadId,
       "MultipartUpload": {
-        "Parts": parts 
+        "Parts": parts
       }
     }
 
@@ -82,7 +83,7 @@ async function completeMultipartUpload(S3, request, headers) {
   } catch (err) {
     return new Response(JSON.stringify({
       msg: 'Error: /completeMultipartUpload',
-      error: JSON.stringify(err) 
+      error: JSON.stringify(err)
     }), {
       status: 500,
       headers: headers
@@ -106,7 +107,7 @@ async function uploadPart(S3, request, headers) {
     const fileData = formData.get('file');
 
     const input = {
-      "Body": fileData, 
+      "Body": fileData,
       "Bucket": bucket,
       "Key": key,
       "PartNumber": partNumber,
@@ -157,7 +158,7 @@ async function getMultiPartUpload(S3, request, headers) {
       status: 200,
       headers: headers
     });
-  
+
   } catch (err) {
     return new Response(JSON.stringify({
       msg: 'Error: /getMultiPartUpload',
