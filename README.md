@@ -1,6 +1,6 @@
 # Example worker + R2 multipart upload 
 
-See my ![blog post](https://notjoemartinez.com/blog/cloudflare_r2_multipart_upload_s3sdk/) for more information.
+See my [blog post](https://notjoemartinez.com/blog/cloudflare_r2_multipart_upload_s3sdk/) for more information.
 
 This is a simple vanilla js example of a cloudflare worker 
 that uses the aws-sdk to upload multipart files to upload 
