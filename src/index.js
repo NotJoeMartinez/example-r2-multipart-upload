@@ -9,13 +9,6 @@ import {
 export default {
   async fetch(request, env, ctx) {
 
-
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, OPTIONS, PUT",
-      "Access-Control-Allow-Headers": "*"
-    }
-
     const S3 = new S3Client({
       region: "auto",
       endpoint: env.CF_ENDPOINT,
@@ -25,6 +18,12 @@ export default {
       },
     });
 
+    const headers = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS, PUT",
+      "Access-Control-Allow-Headers": "*",
+      "Content-Type": "application/json"
+    }
 
     const url = new URL(request.url);
     const base = url.pathname.split('/').slice(1)[0];
@@ -32,7 +31,7 @@ export default {
     if (request.method === 'GET') {
       if (base === 'getMultiPartUpload') {
         return getMultiPartUpload(S3, request, headers);
-      }
+      } 
     }
 
     if (request.method === 'POST') {
@@ -75,7 +74,7 @@ async function completeMultipartUpload(S3, request, headers) {
 
     return new Response(JSON.stringify({
       msg: '/completeMultipartUpload',
-      response: response
+      response: response 
     }), {
       status: 200,
       headers: headers
@@ -101,7 +100,6 @@ async function uploadPart(S3, request, headers) {
     const key = params.get('key');
     const partNumber = params.get('partNumber');
     const uploadId = params.get('uploadId');
-
 
     const formData = await request.formData();
     const fileData = formData.get('file');

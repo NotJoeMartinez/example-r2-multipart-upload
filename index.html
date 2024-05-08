@@ -10,7 +10,8 @@
 
             async function uploadFile() {
 
-                const CHUNK_SIZE = 5 * 1024 * 1024; // 25MB
+                const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+                // replace with your cloudflare worker url
                 const BASE_CF_URL = 'http://localhost:8787';
 
                 const file = document.getElementById('fileUpload').files[0];
